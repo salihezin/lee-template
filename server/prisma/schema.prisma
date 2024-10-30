@@ -1,0 +1,133 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./db.sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id         Int          @id @default(autoincrement())
+  email      String       @unique
+  password   String
+  createdAt  DateTime     @default(now())
+  Session    Session[]
+  UserDetail UserDetail[]
+  Post       Post[]
+  Role       Role[]
+  UserRoles  UserRoles[]
+}
+
+model Session {
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  user    User     @relation(fields: [userId], references: [id])
+  expires DateTime
+}
+
+model UserDetail {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  firstName    String
+  lastName     String
+  profilePhoto String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Post {
+  id          Int            @id @default(autoincrement())
+  title       String
+  content     String
+  isPublished Boolean
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  authorId    Int
+  author      User           @relation(fields: [authorId], references: [id])
+  categories  PostCategory[]
+  PostMedia   PostMedia[]
+}
+
+model PostCategory {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PostMedia {
+  id     Int    @id @default(autoincrement())
+  postId Int
+  post   Post   @relation(fields: [postId], references: [id])
+  url    String
+}
+
+model NavbarMenu {
+  id        Int          @id @default(autoincrement())
+  title     String
+  url       String
+  icon      String
+  sortOrder Int?
+  mainMenu  Boolean      @default(false)
+  isActive  Boolean
+  parentId  Int?
+  parent    NavbarMenu?  @relation("NavbarMenuToNavbarMenu", fields: [parentId], references: [id])
+  children  NavbarMenu[] @relation("NavbarMenuToNavbarMenu")
+}
+
+model Role {
+  id             Int              @id @default(autoincrement())
+  name           String
+  description    String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  User           User[]
+  Permission     Permission[]
+  RolePermission RolePermission[]
+  UserRoles      UserRoles[]
+}
+
+model Permission {
+  id             Int              @id @default(autoincrement())
+  name           String
+  description    String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  Role           Role[]
+  RolePermission RolePermission[]
+}
+
+model RolePermission {
+  id           Int        @id @default(autoincrement())
+  roleId       Int
+  role         Role       @relation(fields: [roleId], references: [id])
+  permissionId Int
+  permission   Permission @relation(fields: [permissionId], references: [id])
+}
+
+model UserRoles {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  roleId Int
+  user   User @relation(fields: [userId], references: [id])
+  role   Role @relation(fields: [roleId], references: [id])
+}
+
+model Carousel {
+  id                  Int      @id @default(autoincrement())
+  title               String
+  description         String
+  image               String
+  sortOrder           Int?
+  carouselUrl         String   @default("/#")
+  carouselButtonLabel String   @default("Haberin Detayı")
+  isActive            Boolean
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// npx prisma migrate dev --name "add_carousel"
