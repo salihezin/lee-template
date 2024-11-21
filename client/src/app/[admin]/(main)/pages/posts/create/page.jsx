@@ -7,9 +7,11 @@ import {Toast} from 'primereact/toast';
 
 import {useRef, useState} from "react";
 import {postPost} from "../../../../../services/posts";
+import {useRouter} from "next/navigation";
 
 const CreatePostPage = () => {
     const toast = useRef();
+    const router = useRouter();
 
     const [formState, setFormState] = useState({
         title: '',
@@ -54,6 +56,7 @@ const CreatePostPage = () => {
         }
         postPost(postData).then(response => {
             toast.current?.show({severity: 'success', summary: 'Başarılı', detail: 'Post eklendi', life: 3000});
+            router.push('/admin/pages/posts/list');
         }).catch(error => {
             toast.current?.show({severity: 'error', summary: 'Hata', detail: 'Post eklenemedi', life: 3000});
         });

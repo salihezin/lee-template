@@ -1,16 +1,13 @@
 'use client';
 
-import dynamic from 'next/dynamic'
-
-const NoSSR = dynamic(() => import('../../public/technoIt/components/ClientSide'), {
-    ssr: false
-});
+import BodyInner from "../techsoft/templates/BodyInner";
+import React from "react";
 
 export default function Home() {
 
     return (
-        <div>
-            <NoSSR/>
-        </div>
+        <>
+            <BodyInner />
+        </>
     );
 }

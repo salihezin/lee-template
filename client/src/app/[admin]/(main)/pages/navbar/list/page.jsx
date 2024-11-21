@@ -15,6 +15,9 @@ const NavbarListPage = () => {
     const [menus, setMenus] = useState([]);
     const [parentMenus, setParentMenus] = useState([]);
     const [reOrdered, setReOrdered] = useState(false);
+    const [expandedRows, setExpandedRows] = useState(null);
+    const [expandedSubRows, setExpandedSubRows] = useState(null);
+    const [allowExpansion, setAllowExpansion] = useState(true);
     const toast = useRef(null);
 
     const fetchMenus = () => {
@@ -92,14 +95,80 @@ const NavbarListPage = () => {
         });
     }
 
+    console.log("Parent Menus: ", parentMenus);
+
     return (
         <div className="card">
             <Toast ref={toast}/>
             <ConfirmPopup/>
-            <DataTable value={parentMenus} className="p-datatable-sm" reorderableRows onRowReorder={e => {
-                setParentMenus(e.value);
-                setReOrdered(true);
-            }}>
+            <DataTable
+                value={parentMenus}
+                className="p-datatable-sm"
+                reorderableRows
+                expandedRows={expandedRows}
+                rowExpansionTemplate={(data) => {
+                    return data.children.length > 0 &&
+                        (
+                            <DataTable
+                                value={data.children}
+                                reorderableRows
+                                expandedRows={expandedSubRows}
+                                rowExpansionTemplate={(data) => {
+                                    return data.children.length > 0 &&
+                                        (
+                                            <DataTable
+                                                value={data.children}
+                                                reorderableRows
+                                                className="p-datatable-sm">
+                                                <Column
+                                                    headerStyle={{width: '3rem'}}
+                                                    body={() => <i className="pi pi-bars" style={{cursor: 'move'}}/>}
+                                                />
+                                                <Column field="title" header="Başlık"/>
+                                                <Column field="url" header="Url"/>
+                                                <Column field="isActive" header="Aktif"
+                                                        body={rowData => <InputSwitch checked={rowData.isActive}
+                                                                                      disabled/>}/>
+                                                <Column field="parentId" header="Üst Menü"
+                                                        body={rowData => rowData.parentId ? getParentMenu(rowData.parentId) : '-'}/>
+                                                <Column header="Sil"
+                                                        body={rowData => <Button icon="pi pi-trash" rounded outlined
+                                                                                 severity="danger"
+                                                                                 aria-label="Cancel"
+                                                                                 disabled={rowData.children?.length > 0}
+                                                                                 onClick={event => deleteThisMenu(event, rowData.id)}/>
+                                                        }/>
+                                            </DataTable>
+                                        );
+                                }}
+                                onRowToggle={(e) => setExpandedSubRows(e.data)}
+                                className="p-datatable-sm">
+                                <Column expander={allowExpansion} style={{width: '5rem'}}/>
+                                <Column
+                                    headerStyle={{width: '3rem'}}
+                                    body={() => <i className="pi pi-bars" style={{cursor: 'move'}}/>}
+                                />
+                                <Column field="title" header="Başlık"/>
+                                <Column field="url" header="Url"/>
+                                <Column field="isActive" header="Aktif"
+                                        body={rowData => <InputSwitch checked={rowData.isActive} disabled/>}/>
+                                <Column field="parentId" header="Üst Menü"
+                                        body={rowData => rowData.parentId ? getParentMenu(rowData.parentId) : '-'}/>
+                                <Column header="Sil"
+                                        body={rowData => <Button icon="pi pi-trash" rounded outlined severity="danger"
+                                                                 aria-label="Cancel"
+                                                                 disabled={rowData.children?.length > 0}
+                                                                 onClick={event => deleteThisMenu(event, rowData.id)}/>
+                                        }/>
+                            </DataTable>
+                        );
+                }}
+                onRowToggle={(e) => setExpandedRows(e.data)}
+                onRowReorder={e => {
+                    setParentMenus(e.value);
+                    setReOrdered(true);
+                }}>
+                <Column expander={allowExpansion} style={{width: '5rem'}}/>
                 <Column
                     headerStyle={{width: '3rem'}}
                     body={() => <i className="pi pi-bars" style={{cursor: 'move'}}/>}

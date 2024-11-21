@@ -32,6 +32,13 @@ const AppMenu = () => {
             ]
         },
         {
+            label: 'Carousel Menü',
+            items: [
+                { label: 'Oluştur', icon: 'pi pi-fw pi-plus', to: '/admin/pages/carousel/create' },
+                { label: 'Listele', icon: 'pi pi-fw pi-bars', to: '/admin/pages/carousel/list' }
+            ]
+        },
+        {
             label: 'Hierarchy',
             items: [
                 {

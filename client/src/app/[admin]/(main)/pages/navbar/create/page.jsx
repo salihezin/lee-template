@@ -8,8 +8,10 @@ import {Button} from "primereact/button";
 import {Message} from "primereact/message";
 
 import {getMenus, postNavbarMenus} from "../../../../../services/navbarMenus";
+import {useRouter} from "next/navigation";
 
 const NavbarMenuCreatePage = () => {
+    const router = useRouter();
     const [menus, setMenus] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [formState, setFormState] = useState({
@@ -36,9 +38,10 @@ const NavbarMenuCreatePage = () => {
             parentId: getParentId() ?? null
         };
         postNavbarMenus(postData).then(response => {
-            console.log(response);
+            console.log('response', response);
+            router.push('/admin/pages/navbar/list');
         }).catch(error => {
-            console.log(error);
+            console.log('error', error);
         });
     }
 
@@ -63,10 +66,24 @@ const NavbarMenuCreatePage = () => {
             key: parentMenu.id,
             label: parentMenu.title,
             children: children.map(child => {
+                console.log("Child: ", child);
                 return {
                     key: child.id,
                     label: child.title,
-                    children: []
+                    children: [
+                        ...child.children.map(child => {
+                            return {
+                                key: child.id,
+                                label: child.title,
+                                children: []
+                            }
+                        }),
+                        {
+                            key: `new-${child.id}`,
+                            label: 'Yeni Menü',
+                            children: []
+                        }
+                    ]
                 }
             })
         }
@@ -79,14 +96,16 @@ const NavbarMenuCreatePage = () => {
             children: []
         });
     });
+
     treeData.push({
         key: 'new',
         label: 'Yeni Menü',
         children: []
     });
 
+
+
     const getParentId = () => {
-        console.log('selectedLocation', selectedLocation);
         if (selectedLocation === null) {
             return null;
         }

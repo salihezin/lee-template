@@ -50,8 +50,6 @@ const UpdatePostPage = () => {
         });
     }, []);
 
-    console.log('post:', post)
-
     const validateThisPost = () => {
         if (formState.title.length < 3 && formState.content.length < 10) {
             setErrorState({
